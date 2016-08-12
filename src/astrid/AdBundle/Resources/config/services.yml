@@ -1,0 +1,4 @@
+services:
+#    astrid_ad.example:
+#        class: astrid\AdBundle\Example
+#        arguments: ["@service_id", "plain_value", %parameter%]

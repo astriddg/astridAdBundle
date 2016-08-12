@@ -1,0 +1,3 @@
+astrid_ad_homepage:
+    path:     /
+    defaults: { _controller: astridAdBundle:Default:index }
