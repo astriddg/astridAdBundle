@@ -3,6 +3,9 @@
 namespace astrid\AdBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Gedmo\Mapping\Annotation as Gedmo;
+
 
 /**
  * Advert
@@ -36,11 +39,9 @@ class Advert
     private $description;
 
     /**
-     * @var \stdClass
-     *
-     * @ORM\Column(name="categories", type="object")
+     * @ORM\ManyToOne(targetEntity="astrid\AdBundle\Entity\Category", cascade={"persist"})
      */
-    private $categories;
+    private $category;
 
     /**
      * @var float
@@ -50,9 +51,7 @@ class Advert
     private $price;
 
     /**
-     * @var \stdClass
-     *
-     * @ORM\Column(name="photos", type="object", nullable=true)
+     * @ORM\OneToMany(targetEntity="Photo", mappedBy="advert", cascade ={"persist","remove"}) 
      */
     private $photos;
 
@@ -64,18 +63,24 @@ class Advert
     private $date;
 
     /**
-     * @var \stdClass
-     *
-     * @ORM\Column(name="city", type="object")
+     * @ORM\ManyToOne(targetEntity="astrid\AdBundle\Entity\City", cascade={"persist"})
      */
     private $city;
 
     /**
      * @var string
      *
+     * @Gedmo\Slug(fields={"title"})
      * @ORM\Column(name="slug", type="string", length=255)
      */
     private $slug;
+
+
+    public function __construct() 
+    {
+        $this->photos = new ArrayCollection();
+        $this->date = new \DateTime();
+    }
 
 
     /**
@@ -143,9 +148,9 @@ class Advert
      *
      * @return Advert
      */
-    public function setCategories($categories)
+    public function setCategory($category)
     {
-        $this->categories = $categories;
+        $this->category = $category;
 
         return $this;
     }
@@ -155,9 +160,9 @@ class Advert
      *
      * @return \stdClass
      */
-    public function getCategories()
+    public function getCategory()
     {
-        return $this->categories;
+        return $this->category;
     }
 
     /**
@@ -185,27 +190,31 @@ class Advert
     }
 
     /**
-     * Set photos
+     * Set photo
      *
-     * @param \stdClass $photos
-     *
-     * @return Advert
+     * @param Photo $photo
      */
-    public function setPhotos($photos)
+    public function addPhoto(Photo $photo)
     {
-        $this->photos = $photos;
+        $this->photos[] = $photo;
 
         return $this;
     }
 
     /**
-     * Get photos
-     *
-     * @return \stdClass
+     * @return ArrayCollection
      */
     public function getPhotos()
     {
         return $this->photos;
+    }
+
+    /**
+     * @param Photo $photo
+     */
+    public function removePhoto(Photo $photo)
+    {
+        $this->photos->removeElement($photo);
     }
 
     /**

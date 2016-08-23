@@ -1,0 +1,114 @@
+{# src/astrid/AdBundle/Resources/views/index.html.twig #}
+
+{% extends "astridAdBundle::layout.html.twig" %}
+
+{% block title %}
+  Home
+{% endblock %}
+
+{% block body %}
+
+  <h2>Write a new ad</h2>
+
+<div class="well">
+  {{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
+  {{ form_errors(form) }}
+
+
+  <div class="form-group">
+    {# Génération du label. #}
+    {{ form_label(form.title, "Title", {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
+
+    {# Affichage des erreurs pour ce champ précis. #}
+    {{ form_errors(form.title) }}
+
+    <div class="col-sm-10">
+      {# Génération de l'input. #}
+      {{ form_widget(form.title, {'attr': {'class': 'form-control'}}) }}
+    </div>
+  </div>
+
+  {# Idem pour un autre champ. #}
+  <div class="form-group">
+    {{ form_label(form.description, "Advert Description", {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
+    {{ form_errors(form.description) }}
+    <div class="col-sm-10">
+      {{ form_widget(form.description) }}
+    </div>
+  </div>
+
+   <div class="form-group">
+    {{ form_label(form.photos, "Add photos", {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
+    {{ form_errors(form.photos) }}
+    <div class="col-sm-10">
+      {{ form_widget(form.photos) }}
+      <br><a id="add_pictures" class="btn btn-primary" > Add a picture</a>
+    </div>
+  </div>
+
+  <div class="form-group">
+    {{ form_label(form.category, "Category:", {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
+    {{ form_errors(form.category) }}
+    <div class="col-sm-10">
+      {{ form_widget(form.category) }}
+    </div>
+  </div>
+
+  <div class="form-group">
+    {{ form_label(form.city, "City:", {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
+    {{ form_errors(form.city) }}
+    <div class="col-sm-10">
+      {{ form_widget(form.city) }}
+    </div>
+  </div>
+
+  <div class="form-group">
+    {{ form_label(form.price, "Price:", {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
+    {{ form_errors(form.price) }}
+    <div class="col-sm-10">
+      {{ form_widget(form.price) }}
+    </div>
+  </div>
+
+  {% for file in form.photos %}
+
+{{ form_errors(file) }} {{ form_widget(file) }}
+
+
+{% endfor %}
+
+  {# Pour le bouton, pas de label ni d'erreur, on affiche juste le widget #}
+  {{ form_widget(form.save, {'attr': {'class': 'btn btn-primary'}}) }}
+
+  {# Génération automatique des champs pas encore écrits.
+     Dans cet exemple, ce serait le champ CSRF (géré automatiquement par Symfony !)
+     et tous les champs cachés (type « hidden »). #}
+  {{ form_rest(form) }}
+
+  {# Fermeture de la balise <form> du formulaire HTML #}
+  {{ form_end(form) }}
+</div>
+
+<script>
+	$('#add_pictures').click(function(){
+    var total_files=$("#member_pictures_container li").length;
+    var file_label=document.createElement("label");
+    file_label.innerHTML="File";
+    file_label.for="PhotoAndDescription_files_"+total_files;
+    var div_file=document.createElement("div");    
+    div_file.appendChild(file_label);
+    var picture= document.createElement('input');
+    picture.name="PhotoAndDescription[files]["+total_files+"][file]";
+    picture.type="file";
+    picture.id="PhotoAndDescripton_files_"+total_files;
+    div_file.appendChild(picture);
+    div_container=document.createElement('div');
+    div_container.id="PhotoAndDescription_files_"+total_files;
+    div_container.appendChild(div_file);
+    var list_element=document.createElement('li');
+    list_element.appendChild(div_container);
+    $('#member_pictures_container').append(list_element);
+});
+
+</script>
+{% endblock %}

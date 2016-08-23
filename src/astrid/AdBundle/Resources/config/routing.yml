@@ -1,3 +1,19 @@
 astrid_ad_homepage:
     path:     /
-    defaults: { _controller: astridAdBundle:Default:index }
+    defaults: { _controller: astridAdBundle:Ad:home }
+
+astrid_ad_new:
+    path:     /new
+    defaults: { _controller: astridAdBundle:Ad:newAd }
+
+astrid_ad_view:
+    path:     /view/{id}
+    defaults: { _controller: astridAdBundle:Ad:view }
+
+astrid_ad_edit:
+    path:     /edit/{id}
+    defaults: { _controller: astridAdBundle:Ad:editAd }
+
+astrid_ad_delete:
+    path:     /delete/{id}
+    defaults: { _controller: astridAdBundle:Ad:deleteAd }

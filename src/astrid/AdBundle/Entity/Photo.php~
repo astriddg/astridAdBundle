@@ -5,12 +5,12 @@ namespace astrid\AdBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Image
+ * Photo
  *
- * @ORM\Table(name="image")
- * @ORM\Entity(repositoryClass="astrid\AdBundle\Repository\ImageRepository")
+ * @ORM\Table(name="Photo")
+ * @ORM\Entity(repositoryClass="astrid\AdBundle\Repository\PhotoRepository")
  */
-class Image
+class Photo
 {
     /**
      * @var int
@@ -49,6 +49,11 @@ class Image
      */
     private $file;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="Advert", inversedBy="photo")
+     */
+    private $advert;
+
 
     /**
      * Get id
@@ -65,7 +70,7 @@ class Image
      *
      * @param string $url
      *
-     * @return Image
+     * @return Photo
      */
     public function setUrl($url)
     {
@@ -89,7 +94,7 @@ class Image
      *
      * @param string $alt
      *
-     * @return Image
+     * @return Photo
      */
     public function setAlt($alt)
     {
@@ -113,7 +118,7 @@ class Image
      *
      * @param string $name
      *
-     * @return Image
+     * @return Photo
      */
     public function setName($name)
     {
@@ -137,7 +142,7 @@ class Image
      *
      * @param string $file
      *
-     * @return Image
+     * @return Photo
      */
     public function setFile($file)
     {

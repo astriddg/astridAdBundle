@@ -2,6 +2,3 @@ astrid_ad:
     resource: "@astridAdBundle/Resources/config/routing.yml"
     prefix:   /
 
-app:
-    resource: "@AppBundle/Controller/"
-    type:     annotation

@@ -1,0 +1,32 @@
+{# src/astrid/AdBundle/Resources/views/view.html.twig #}
+
+{% extends "astridAdBundle::layout.html.twig" %}
+
+{% block title %}
+  {{ advert.title }}
+{% endblock %}
+
+{% block body %}
+
+  <h2> {{ advert.title }} </h2>
+
+
+
+<div class="well"> 
+	<p> {{ advert.description}} </p> 
+	<span class = "label"> {{ advert.price }} </span> <br>
+	<strong> {{ advert.city.name}} </strong> <br>
+	<strong> {{ advert.category.name }} </strong>
+</div>
+<div class="well">
+	{% for photo in advert.photos %}
+		<img
+		  src="{{ asset(photo.uploadDir ~ '/' ~ photo.id ~ '.' ~ photo.url) }}"
+		  alt="{{ photo.alt }}" style="width:200px; height: auto;"
+		/>
+
+	{% endfor %}
+</div>
+
+
+{% endblock %}
