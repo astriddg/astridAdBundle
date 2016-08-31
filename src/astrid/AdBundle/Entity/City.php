@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * city
  *
- * @ORM\Table(name="city")
+ * @ORM\Table(name="city_france",indexes={@ORM\Index(name="alph_order", columns={"city_name"})})
  * @ORM\Entity(repositoryClass="astrid\AdBundle\Repository\cityRepository")
  */
 class City
@@ -24,7 +24,7 @@ class City
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=255, unique=true)
+     * @ORM\Column(name="city_name", type="string", length=255)
      */
     private $name;
 

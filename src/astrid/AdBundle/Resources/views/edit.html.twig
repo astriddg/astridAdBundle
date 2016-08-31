@@ -37,6 +37,17 @@
     </div>
   </div>
 
+  <div class="well">
+  {% for photo in advert.photos %}
+    <img
+      src="{{ asset(photo.uploadDir ~ '/' ~ photo.id ~ '.' ~ photo.url) }}"
+      alt="{{ photo.alt }}" style="width:200px; height: auto;"
+    />
+    <a href=" {{ path('astrid_ad_deletephoto', {'id': photo.id}) }} " class="btn btn-danger" ><span class="glyphicon glyphicon-minus-sign" ></span> </a>
+
+  {% endfor %}
+</div>
+
    <div class="form-group">
     {{ form_label(form.photos, "Add photos", {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
     {{ form_errors(form.photos) }}
@@ -44,6 +55,7 @@
       {{ form_widget(form.photos) }}
     </div>
   </div>
+
 
   <div class="form-group">
     {{ form_label(form.category, "Category:", {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
@@ -87,5 +99,10 @@
   {# Fermeture de la balise <form> du formulaire HTML #}
   {{ form_end(form) }}
 </div>
+
+<script>
+
+</script>
+
 
 {% endblock %}

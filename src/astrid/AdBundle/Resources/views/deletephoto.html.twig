@@ -1,0 +1,32 @@
+{# src/astrid/AdBundle/Resources/views/index.html.twig #}
+
+{% extends "astridAdBundle::layout.html.twig" %}
+
+{% block title %}
+  Deleting photo
+{% endblock %}
+
+{% block body %}
+
+  <h2> Deleting photo </h2>
+
+
+<p> Are you sure you want to delete this photo ? </p>
+
+<img
+		  src="{{ asset(photo.uploadDir ~ '/' ~ photo.id ~ '.' ~ photo.url) }}"
+		  alt="{{ photo.alt }}" style="width:300px; height: auto;"
+		/>
+
+ <form action="{{ path('astrid_ad_deletephoto', {'id': photo.id}) }}" method="post">
+    <a href="{{ path('astrid_ad_edit', {'id': advert.id}) }}" class="btn btn-default">
+      <i class="glyphicon glyphicon-chevron-left"></i>
+      Go back to the ad.
+    </a>
+
+    <input type="submit" value="Delete" class="btn btn-danger" />
+
+    {{ form_rest(form) }}
+  </form>
+
+{% endblock %}

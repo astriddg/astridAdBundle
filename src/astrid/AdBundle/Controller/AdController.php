@@ -7,7 +7,9 @@ use astrid\AdBundle\Form\SearchType;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use astrid\AdBundle\Entity\Advert;
+use astrid\AdBundle\Entity\Photo;
 use astrid\AdBundle\Form\AdvertType;
+use astrid\AdBundle\Form\AdvertEditType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 
 class AdController extends Controller
@@ -44,8 +46,14 @@ class AdController extends Controller
 	      $photos = $advert->getPhotos();
 
 	      foreach($photos as $photo) {
-	      	$photo->setAdvert($advert);
-	      	$em->persist($photo);
+	      	if($photo->getFile()) {
+	      		$photo->setAdvert($advert);
+	      		$em->persist($photo);
+	      	}
+	      	else {
+	      		$advert->removePhoto($photo);
+	      	}
+	      	
 	      }
 	      
 	      $em->persist($advert);
@@ -69,7 +77,7 @@ class AdController extends Controller
 
     public function editAdAction(Request $request, Advert $advert) {
 
-	    $form   = $this->get('form.factory')->create(AdvertType::class, $advert);
+	    $form   = $this->get('form.factory')->create(AdvertEditType::class, $advert);
 
 	    if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
 
@@ -78,9 +86,12 @@ class AdController extends Controller
 	      $photos = $advert->getPhotos();
 
 	      foreach($photos as $photo) {
-	      	if ($photo->getAdvert() == null) {
+	      	if($photo->getFile()) {
 	      		$photo->setAdvert($advert);
 	      		$em->persist($photo);
+	      	}
+	      	else {
+	      		$advert->removePhoto($photo);
 	      	}
 	      	
 	      }
@@ -90,7 +101,7 @@ class AdController extends Controller
 	      return $this->render('astridAdBundle::view.html.twig', array('advert' => $advert));
 	    }
 
-	    return $this->render('astridAdBundle::add.html.twig', array(
+	    return $this->render('astridAdBundle::edit.html.twig', array(
 	      'advert' => $advert,
 	      'form' => $form->createView(),
 	    ));
@@ -118,4 +129,31 @@ class AdController extends Controller
 	      'form'   => $form->createView(),
 	    ));
 	  }
+
+	  public function deletePhotoAction(Request $request, Photo $photo)
+	  {
+	    $em = $this->getDoctrine()->getManager();
+	    $advert = $photo->getAdvert();
+
+
+	    $form = $this->get('form.factory')->create();
+
+	    if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+	      
+	      $em->remove($photo);
+	      $em->flush();
+
+	      $request->getSession()->getFlashBag()->add('info', "La photo a bien été supprimée.");
+
+	      return $this->redirectToRoute('astrid_ad_edit', array('id' => $advert->getId()));
+	    }
+	    
+	    return $this->render('astridAdBundle::deletephoto.html.twig', array(
+	      'advert' => $advert,
+	      'photo' => $photo,
+	      'form'   => $form->createView(),
+	    ));
+	  }
+
+
 }

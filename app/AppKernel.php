@@ -18,6 +18,7 @@ class AppKernel extends Kernel
             new astrid\AdBundle\astridAdBundle(),
             new Ivory\CKEditorBundle\IvoryCKEditorBundle(),
             new Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle(),
+            new Symfony\Bundle\AsseticBundle\AsseticBundle(),
 
         ];
 

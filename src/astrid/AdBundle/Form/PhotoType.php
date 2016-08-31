@@ -17,7 +17,7 @@ class PhotoType extends AbstractType
   public function buildForm(FormBuilderInterface $builder, array $options)
   {
     $builder
-      ->add('file', FileType::class, array('required' => false));
+      ->add('file', FileType::class, array('required' => false, 'constraints' => new File(array ('maxSize' => '2M', 'maxSizeMessage' => 'This file is too big, please choose a smaller file', 'mimeTypes' => array('image/jpeg', 'image/png', 'image/jpg'), 'mimeTypesMessage' => 'this file does not have the right extention (PNG, JPEG or JPG)'))));
   }
 
   public function configureOptions(OptionsResolver $resolver)

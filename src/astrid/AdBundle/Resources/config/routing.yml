@@ -17,3 +17,7 @@ astrid_ad_edit:
 astrid_ad_delete:
     path:     /delete/{id}
     defaults: { _controller: astridAdBundle:Ad:deleteAd }
+
+astrid_ad_deletephoto:
+    path:     /deletephoto/{id}
+    defaults: { _controller: astridAdBundle:Ad:deletePhoto}

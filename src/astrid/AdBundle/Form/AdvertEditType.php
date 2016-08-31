@@ -13,7 +13,7 @@ use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use astrid\AdBundle\Entity\Photo;
 
 
-class AdvertType extends AbstractType
+class AdvertEditType extends AbstractType
 {
 	public function buildForm(FormBuilderInterface $builder, array $options) {
 
@@ -21,8 +21,7 @@ class AdvertType extends AbstractType
 			->add('title', TextType::class)
 			->add('description', CKEditorType::class)
 			->add('price', MoneyType::class, array('required' => FALSE))
-			->add('photos', CollectionType::class, array('entry_type' => PhotoType::class, 'allow_add' => true, 'allow_delete' => true, 'data'=>array(new Photo(),
-            new Photo(), new Photo())))
+			->add('photos', CollectionType::class, array('entry_type' => PhotoType::class, 'allow_add' => true, 'allow_delete' => true, 'data'=>array(new Photo())))
 			->add('category', EntityType::class, array(
 				'placeholder' => 'choose a category',
 				'class' => 'astridAdBundle:Category',

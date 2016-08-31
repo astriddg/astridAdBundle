@@ -19,7 +19,7 @@ class SearchType extends AbstractType
 				'choice_label'  => 'name',
 				'required' => TRUE))
 			->add('city', EntityType::class, array(
-				'placeholder' => 'choose a category',
+				'placeholder' => 'choose a city',
 				'class' => 'astridAdBundle:City',
 				'choice_label'  => 'name',
 				'required' => TRUE))
