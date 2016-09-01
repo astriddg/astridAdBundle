@@ -38,6 +38,9 @@ class AdController extends Controller
 
     	$advert = new Advert();
 	    $form   = $this->get('form.factory')->create(AdvertType::class, $advert);
+	    if($form->handleRequest($request)->isValid()) {
+	    	echo 'tada!';
+	    }
 
 	    if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
 

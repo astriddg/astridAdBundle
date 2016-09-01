@@ -21,3 +21,41 @@ astrid_ad_delete:
 astrid_ad_deletephoto:
     path:     /deletephoto/{id}
     defaults: { _controller: astridAdBundle:Ad:deletePhoto}
+
+
+
+
+astrid_api_get:
+    path:     /api/get
+    defaults: {_controller: astridAdBundle:Api:get}
+    methods: [GET]
+
+astrid_api_add:
+    path:     /api/add
+    defaults: {_controller: astridAdBundle:Api:add}
+    methods: [POST]
+
+astrid_api_ad:
+    path:     /api/ad/{id}
+    defaults: {_controller: astridAdBundle:Api:ad}
+    methods: [GET]
+
+astrid_api_edit:
+    path:     /api/edit/{id}
+    defaults: {_controller: astridAdBundle:Api:edit}
+    methods: [POST]
+
+astrid_api_addcity:
+    path:     /api/addcity
+    defaults: {_controller: astridAdBundle:Api:addCity}
+    methods: [POST]
+
+astrid_api_addcat:
+    path:     /api/addcat
+    defaults: {_controller: astridAdBundle:Api:addCat}
+    methods: [POST]
+
+
+
+
+

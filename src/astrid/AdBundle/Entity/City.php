@@ -3,6 +3,7 @@
 namespace astrid\AdBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * city
@@ -27,6 +28,7 @@ class City
      * @ORM\Column(name="city_name", type="string", length=255)
      */
     private $name;
+
 
 
 
