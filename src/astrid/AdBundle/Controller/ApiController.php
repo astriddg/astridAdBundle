@@ -8,7 +8,11 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use astrid\AdBundle\Entity\Advert;
+use astrid\AdBundle\Entity\City;
+use astrid\AdBundle\Entity\Category;
+use astrid\AdBundle\Entity\Photo;
 use astrid\AdBundle\Form\ApiAdvertType;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 
 
 class ApiController extends Controller 
@@ -114,6 +118,7 @@ class ApiController extends Controller
 		return new JsonResponse($response);
 	}
 
+
 	public function catAction(Request $request) {
 		$em = $this->getDoctrine()->getManager();
 
@@ -146,6 +151,7 @@ class ApiController extends Controller
 		return new JsonResponse($response);
 	}
 
+
 	public function adAction(Request $request) {
 		$em = $this->getDoctrine()->getManager();
 
@@ -158,9 +164,8 @@ class ApiController extends Controller
 
 		if ($advert == null) {
 			$error = array('status' => 404, 'message' => 'The advert you entered does not exist.');
-	        $response = new JsonResponse($error);
-	        $response->setCharset('UTF-8');
-	        return $response;
+	        return new JsonResponse($error);
+	       
 		}
 
 
@@ -178,28 +183,274 @@ class ApiController extends Controller
 		$body = $request->getContent();
 		$data= json_decode($body, true);
 
-		$advert = new Advert();
 
-
-
-
-		$form = $this->get('form.factory')->create(ApiAdvertType::class, $advert);
-		$form->submit($data);
-
-
-		if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+		if ($cityCat = $this->requestValid($data)) {
+			$advert = $this->hydrateAdvert($data, $cityCat);
 			$em = $this->getDoctrine()->getManager();
 			$em->persist($advert);
 	      	$em->flush();
 
 	      	$response = array('status' => 200, 'message' => 'the request was successful. The advert has been added.');
 			return new JsonResponse($response);
-
 		}
-			file_put_contents('errorsapi.txt', $form->getErrors());
 
-			$error = array('status' => 400, 'error' => 'Oops, there was a mistake in your request, did you appropriately fill all the fields?');
-	        return new JsonResponse($error);		
+		$error = array('status' => 400, 'error' => 'Oops, there was a mistake in your request, did you appropriately fill all the fields?');
+	        return new JsonResponse($error);
+
+	}
+
+	/**
+	*@Route("/api/addphoto")
+	*@Method("POST")
+	*/
+	public function addPhotoAction(Request $request) {
+		$photos = $request->files->all();
+		if ($this->photosValid($photos)) {
+			foreach($photos as $photo) {
+				$photo = new Photo();
+			}
+		}
+
+		return new JsonResponse('reponse');
+	}
+	
+	/**
+	*@Route("/api/addcity")
+	*@Method("POST")
+	*/
+	public function addCityAction(Request $request) {
+
+		$em = $this->getDoctrine()->getManager();
+
+		if (!$em->getRepository('astridAdBundle:City')->findOneByName($request->query->get('city'))) {
+			$city = new City();
+			$city->setName($request->query->get('city'));
+			$em->persist($city);
+	      	$em->flush();
+
+	      	$response = array('status' => 200, 'message' => 'the request was successful. The city has been added.');
+			return new JsonResponse($response);
+		}
+
+		$error = array('status' => 409, 'error' => 'Oops, looks like this city exists already..');
+	     return new JsonResponse($error);		
+
+
+	} 
+
+	/**
+	*@Route("/api/addcat")
+	*@Method("POST")
+	*/
+	public function addCatAction(Request $request) {
+
+		$em = $this->getDoctrine()->getManager();
+
+		if (!$em->getRepository('astridAdBundle:Category')->findOneByName($request->query->get('category'))) {
+			$category = new Category();
+			$category->setName($request->query->get('category'));
+			$em->persist($category);
+	      	$em->flush();
+
+	      	$response = array('status' => 200, 'message' => 'the request was successful. The category has been added.');
+			return new JsonResponse($response);
+		}
+
+		$error = array('status' => 409, 'error' => 'Oops, looks like this category exists already..');
+	    return new JsonResponse($error);		
+
+
+	} 
+
+
+	/**
+	*@Route("/api/edit")
+	*@Method("POST")
+	*/
+	public function editAction(Request $request) {
+
+		$em = $this->getDoctrine()->getManager();
+
+		if (is_numeric($request->query->get('advert'))) {
+			$advert = $em->getRepository('astridAdBundle:Advert')->findOneById($request->query->get('advert'));
+		}
+		else {
+			$advert = $em->getRepository('astridAdBundle:advert')->findOneBySlug($request->query->get('advert'));
+		}
+
+		if ($advert == null) {
+			$error = array('status' => 404, 'message' => 'The advert you entered does not exist.');
+	        return new JsonResponse($error);
+	       
+		}
+
+
+			$body = $request->getContent();
+			$data= json_decode($body, true);
+
+			if (isset($data['title'])) {
+				$advert->setTitle($data['title']);
+			}
+
+			if (isset($data['description'])) {
+				$advert->setDescription($data['description']);
+			}
+
+			if (isset($data['price'])) {
+				$advert->setPrice($data['price']);
+			}
+
+			if (isset($data['category'])) {
+
+				if (is_numeric($data['category'] )) {
+					$category = $em->getRepository('astridAdBundle:Category')->findOneById($data['category']);
+				}
+				else {
+					$category  = $em->getRepository('astridAdBundle:Category')->findOneBySlug($data['category']);
+				}
+
+				if ($category == null) {
+			        $error = array('status' => 400, 'error' => 'Oops, this category does not exist. Please add it using "api/addcat".');
+	     			return new JsonResponse($error);
+				}
+
+				$advert->setCategory($category);
+				
+			}
+
+			if (isset($data['city'])) {
+
+				if (is_numeric($data['city'] )) {
+					$advert = $em->getRepository('astridAdBundle:City')->findOneById($data['city']);
+				}
+				else {
+					$advert  = $em->getRepository('astridAdBundle:City')->findOneBySlug($data['city']);
+				}
+
+				if ($city == null) {
+			        $error = array('status' => 400, 'error' => 'Oops, this city does not exist. Please add it using "api/addcity".');
+	     			return new JsonResponse($error);
+				}
+
+				$advert->setCity($city);
+				
+			}
+
+			$em->flush();
+
+			$response = array('status' => 200, 'message' => 'the request was successful. The advert was edited..');
+			return new JsonResponse($response);
+
+	}
+
+	/**
+	*@Route("/api/delete")
+	*@Method("POST")
+	*/
+	public function deleteAction(Request $request) {
+		$em = $this->getDoctrine()->getManager();
+
+		if (is_numeric($request->query->get('advert'))) {
+			$advert = $em->getRepository('astridAdBundle:Advert')->findOneById($request->query->get('advert'));
+		}
+		else {
+			$advert = $em->getRepository('astridAdBundle:advert')->findOneBySlug($request->query->get('advert'));
+		}
+
+		if ($advert == null) {
+			$error = array('status' => 404, 'message' => 'The advert you entered does not exist.');
+	        return new JsonResponse($error);
+	       
+		}
+
+		$em->remove($advert);
+		$em->flush();	
+
+		$response = array('status' => 200, 'message' => 'the request was successful. The advert was deleted..');
+			return new JsonResponse($response);	
+
+	}
+
+	public function requestValid($data) {
+		if (isset($data['title']) && isset($data['description']) && isset($data['city']) && isset($data['category'] )) {
+
+			if (strlen($data['title'])> 5 && strlen($data['description']) > 10) {
+
+				$cityCat = array();
+				$em = $this->getDoctrine()->getManager();
+
+				if (is_numeric($data['city'])) {
+					$cityCat['city'] = $em->getRepository('astridAdBundle:City')->findOneById($data['city']);
+
+				}
+				else {
+					$cityCat['city'] = $em->getRepository('astridAdBundle:City')->findOneByName($data['city']);
+				}
+
+				if ($cityCat['city'] == null) {
+			        $error = array('status' => 404, 'message' => 'The city you entered does not exist.');
+			        return new JsonResponse($error);
+				}
+
+				if (is_numeric($data['category'] )) {
+					$cityCat['cat'] = $em->getRepository('astridAdBundle:Category')->findOneById($data['category']);
+				}
+				else {
+					$cityCat['cat']  = $em->getRepository('astridAdBundle:Category')->findOneBySlug($data['category']);
+				}
+
+				if ($cityCat['cat']  == null) {
+					$error = array('status' => 404, 'message' => 'The category you entered does not exist.');
+			        return new JsonResponse($error);
+			        
+				}
+
+				if(isset($data['price'])) {
+					if(!is_numeric($data['price'])) {
+						$error = array('status' => 400, 'message' => 'Please enter price in numerical value.');
+			        	return new JsonResponse($error);
+					}
+				}
+
+				return $cityCat;
+			}
+		}
+
+		return false;
+	}
+
+	public function photosValid($photos) {
+
+		if (count($photos) > 3) {
+			$error = array('status' => 400, 'message' => 'You have uploaded more than three pictures.');
+			return new JsonResponse($error);
+		}
+
+
+		foreach ($photos as $photo) {
+
+			if (!$photo->guessExtension() == ('jpg' || 'jpeg' || 'png') || filesize($photo) > pow(8, 6)) { 
+				$error = array('status' => 400, 'message' => 'The picture' . $photo . 'you have uploaded is either too large or the wrong format.');
+				return new JsonResponse($error);
+			} 
+		}
+
+		return true;
+	}
+
+	public function hydrateAdvert($data, $cityCat) {
+
+		$advert = new Advert();
+
+		$advert->setTitle($data['title']);
+		$advert->setDescription($data['description']);
+		$advert->setCity($cityCat['city']);
+		$advert->setCategory($cityCat['cat']);
+		if (isset($data['price'])) {
+			$advert->setPrice($data['price']);
+		}
+		
+		return $advert;
 
 	}
 }

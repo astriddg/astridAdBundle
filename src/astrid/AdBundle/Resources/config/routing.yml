@@ -36,12 +36,12 @@ astrid_api_add:
     methods: [POST]
 
 astrid_api_ad:
-    path:     /api/ad/{id}
+    path:     /api/ad
     defaults: {_controller: astridAdBundle:Api:ad}
     methods: [GET]
 
 astrid_api_edit:
-    path:     /api/edit/{id}
+    path:     /api/edit
     defaults: {_controller: astridAdBundle:Api:edit}
     methods: [POST]
 
@@ -55,6 +55,15 @@ astrid_api_addcat:
     defaults: {_controller: astridAdBundle:Api:addCat}
     methods: [POST]
 
+astrid_api_addphoto:
+    path:     /api/addphoto
+    defaults: {_controller: astridAdBundle:Api:addPhoto}
+    methods: [POST]
+
+astrid_api_delete:
+    path:     /api/delete
+    defaults: {_controller: astridAdBundle:Api:delete}
+    methods: [DELETE]
 
 
 
