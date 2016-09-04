@@ -65,6 +65,11 @@ astrid_api_delete:
     defaults: {_controller: astridAdBundle:Api:delete}
     methods: [DELETE]
 
+astrid_api_deletephoto:
+    path:     /api/deletephoto
+    defaults: {_controller: astridAdBundle:Api:deletePhoto}
+    methods: [DELETE]
+
 
 
 

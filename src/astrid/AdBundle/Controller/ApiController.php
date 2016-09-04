@@ -82,6 +82,8 @@ class ApiController extends Controller
 			$advertList[] = array('id' => $advert->getId(), 'title' => $advert -> getTitle());
 		}
 
+		$advertList = $this->paginate($advertList, $request);
+
 		$response = array('status' => 200, 'message' => 'the request was successful.', 'adverts' => $advertList);
 
 		return new JsonResponse($response);
@@ -112,6 +114,8 @@ class ApiController extends Controller
 		foreach ($adverts as $advert) {
 			$advertList[] = array('id' => $advert->getId(), 'title' => $advert -> getTitle());
 		}
+
+		$advertList = $this->paginate($advertList, $request);
 
 		$response = array('status' => 200, 'message' => 'the request was successful.', 'adverts' => $advertList);
 
@@ -145,6 +149,8 @@ class ApiController extends Controller
 		foreach ($adverts as $advert) {
 			$advertList[] = array('id' => $advert->getId(), 'title' => $advert -> getTitle());
 		}
+
+		$advertList = $this->paginate($advertList, $request);
 
 		$response = array('status' => 200, 'message' => 'the request was successful.', 'adverts' => $advertList);
 
@@ -199,18 +205,38 @@ class ApiController extends Controller
 
 	}
 
-	/**
-	*@Route("/api/addphoto")
-	*@Method("POST")
-	*/
+/**
+    *@Route("/api/addphoto")
+    *@Method("POST")
+    */
 	public function addPhotoAction(Request $request) {
 		$photos = $request->files->all();
-		if ($this->photosValid($photos)) {
-			foreach($photos as $photo) {
-				$photo = new Photo();
-			}
+
+		$em = $this->getDoctrine()->getManager();
+
+		if (is_numeric($request->query->get('advert'))) {
+			$advert = $em->getRepository('astridAdBundle:Advert')->findOneById($request->query->get('advert'));
+		}
+		else {
+			$advert = $em->getRepository('astridAdBundle:advert')->findOneBySlug($request->query->get('advert'));
 		}
 
+		if ($advert == null) {
+			$error = array('status' => 404, 'message' => 'The advert you entered does not exist.');
+	        return new JsonResponse($error);
+	       
+		}
+
+		if ($this->photosValid($photos, $advert)) {
+			foreach($photos as $file) {
+				$photo = new Photo();
+				$photo->setFile($file);
+				$photo->setAdvert($advert);
+				$em->persist($photo);
+			}
+
+			$em->flush();
+		}
 		return new JsonResponse('reponse');
 	}
 	
@@ -220,11 +246,14 @@ class ApiController extends Controller
 	*/
 	public function addCityAction(Request $request) {
 
+		$body = json_decode($request->getContent(), true);
+		$cityName = $body['city'];
+
 		$em = $this->getDoctrine()->getManager();
 
-		if (!$em->getRepository('astridAdBundle:City')->findOneByName($request->query->get('city'))) {
+		if (!$em->getRepository('astridAdBundle:City')->findOneByName($cityName)) {
 			$city = new City();
-			$city->setName($request->query->get('city'));
+			$city->setName($cityName);
 			$em->persist($city);
 	      	$em->flush();
 
@@ -244,11 +273,14 @@ class ApiController extends Controller
 	*/
 	public function addCatAction(Request $request) {
 
+		$body = json_decode($request->getContent(), true);
+		$categoryName = $body['category'];
+
 		$em = $this->getDoctrine()->getManager();
 
-		if (!$em->getRepository('astridAdBundle:Category')->findOneByName($request->query->get('category'))) {
+		if (!$em->getRepository('astridAdBundle:Category')->findOneByName($categoryName)) {
 			$category = new Category();
-			$category->setName($request->query->get('category'));
+			$category->setName($categoryName);
 			$em->persist($category);
 	      	$em->flush();
 
@@ -324,7 +356,7 @@ class ApiController extends Controller
 					$advert = $em->getRepository('astridAdBundle:City')->findOneById($data['city']);
 				}
 				else {
-					$advert  = $em->getRepository('astridAdBundle:City')->findOneBySlug($data['city']);
+					$advert  = $em->getRepository('astridAdBundle:City')->findOneByName($data['city']);
 				}
 
 				if ($city == null) {
@@ -345,7 +377,7 @@ class ApiController extends Controller
 
 	/**
 	*@Route("/api/delete")
-	*@Method("POST")
+	*@Method("DELETE")
 	*/
 	public function deleteAction(Request $request) {
 		$em = $this->getDoctrine()->getManager();
@@ -363,6 +395,12 @@ class ApiController extends Controller
 	       
 		}
 
+		$photos = $em->getRepository('astridAdBundle:Photo')->findBy(array('advert' => $advert));
+
+		foreach($photos as $photo) {
+			$em->remove($photo);
+		}
+
 		$em->remove($advert);
 		$em->flush();	
 
@@ -371,6 +409,7 @@ class ApiController extends Controller
 
 	}
 
+
 	public function requestValid($data) {
 		if (isset($data['title']) && isset($data['description']) && isset($data['city']) && isset($data['category'] )) {
 
@@ -378,6 +417,11 @@ class ApiController extends Controller
 
 				$cityCat = array();
 				$em = $this->getDoctrine()->getManager();
+
+				if($em->getRepository('astridAdBundle:Advert')->findOneByTitle($data['title'])) {
+					$error = array('status' => 409, 'message' => 'Looks like this title already exists. Please use a new title.');
+			        return new JsonResponse($error);
+				}
 
 				if (is_numeric($data['city'])) {
 					$cityCat['city'] = $em->getRepository('astridAdBundle:City')->findOneById($data['city']);
@@ -419,10 +463,13 @@ class ApiController extends Controller
 		return false;
 	}
 
-	public function photosValid($photos) {
+	public function photosValid($photos, $advert) {
 
-		if (count($photos) > 3) {
-			$error = array('status' => 400, 'message' => 'You have uploaded more than three pictures.');
+		$em = $this->getDoctrine()->getManager();
+		$numberPhotos = count($em->getRepository('astridAdBundle:Photo')->findBy(array('advert' => $advert)));
+
+		if ((count($photos) + $numberPhotos) > 3) {
+			$error = array('status' => 400, 'message' => 'There are too many pictures for this advert, please upload fewer.');
 			return new JsonResponse($error);
 		}
 
@@ -452,5 +499,21 @@ class ApiController extends Controller
 		
 		return $advert;
 
+	}
+
+	public function paginate($advertList, Request $request) {
+		if (count($advertList) > 10) {
+			if ($request->query->has('page') && $request->query->get('page') > 1) {
+				$page = $request->query->get('page');
+				$offset = ($page - 1) * 10;
+				$advertList = array_slice($advertList, $offset, 10);
+			}
+
+			else {
+				$advertList = array_slice($advertList, 0, 10);
+			}
+		}
+
+		return $advertList;
 	}
 }
