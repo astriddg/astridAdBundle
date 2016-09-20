@@ -18,8 +18,8 @@ class AdvertType extends AbstractType
 	public function buildForm(FormBuilderInterface $builder, array $options) {
 
 		$builder
-			->add('title', TextType::class)
-			->add('description', CKEditorType::class)
+			->add('title', TextType::class, array('required' => TRUE))
+			->add('description', CKEditorType::class, array('required' => TRUE))
 			->add('price', MoneyType::class, array('required' => FALSE))
 			->add('photos', CollectionType::class, array('entry_type' => PhotoType::class, 'allow_add' => true, 'allow_delete' => true, 'data'=>array(new Photo(),
             new Photo(), new Photo())))

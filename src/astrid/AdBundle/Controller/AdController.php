@@ -73,6 +73,10 @@ class AdController extends Controller
 
     	$em = $this->getDoctrine()->getManager();
 
+    	if (!$advert) {
+    		throw new Exception('This page does not exist.');
+    	}
+
     	return $this->render('astridAdBundle::view.html.twig', array('advert' => $advert));
     }
 
@@ -109,52 +113,52 @@ class AdController extends Controller
     }
 
 
-      public function deleteAdAction(Request $request, Advert $advert)
-	  {
-	    $em = $this->getDoctrine()->getManager();
+	public function deleteAdAction(Request $request, Advert $advert)
+	{
+		$em = $this->getDoctrine()->getManager();
 
 
-	    $form = $this->get('form.factory')->create();
+		$form = $this->get('form.factory')->create();
 
-	    if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
-	      $em->remove($advert);
-	      $em->flush();
+		if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+		  $em->remove($advert);
+		  $em->flush();
 
-	      $request->getSession()->getFlashBag()->add('info', "L'annonce a bien été supprimée.");
+		  $request->getSession()->getFlashBag()->add('info', "L'annonce a bien été supprimée.");
 
-	      return $this->redirectToRoute('astrid_ad_home');
-	    }
-	    
-	    return $this->render('astridAdBundle::delete.html.twig', array(
-	      'advert' => $advert,
-	      'form'   => $form->createView(),
-	    ));
-	  }
+		  return $this->redirectToRoute('astrid_ad_homepage');
+		}
 
-	  public function deletePhotoAction(Request $request, Photo $photo)
-	  {
-	    $em = $this->getDoctrine()->getManager();
-	    $advert = $photo->getAdvert();
+		return $this->render('astridAdBundle::delete.html.twig', array(
+		  'advert' => $advert,
+		  'form'   => $form->createView(),
+		));
+	}
+
+	public function deletePhotoAction(Request $request, Photo $photo)
+	{
+		$em = $this->getDoctrine()->getManager();
+		$advert = $photo->getAdvert();
 
 
-	    $form = $this->get('form.factory')->create();
+		$form = $this->get('form.factory')->create();
 
-	    if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
-	      
-	      $em->remove($photo);
-	      $em->flush();
+		if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+		  
+		  $em->remove($photo);
+		  $em->flush();
 
-	      $request->getSession()->getFlashBag()->add('info', "La photo a bien été supprimée.");
+		  $request->getSession()->getFlashBag()->add('info', "La photo a bien été supprimée.");
 
-	      return $this->redirectToRoute('astrid_ad_edit', array('id' => $advert->getId()));
-	    }
-	    
-	    return $this->render('astridAdBundle::deletephoto.html.twig', array(
-	      'advert' => $advert,
-	      'photo' => $photo,
-	      'form'   => $form->createView(),
-	    ));
-	  }
+		  return $this->redirectToRoute('astrid_ad_edit', array('id' => $advert->getId()));
+		}
+
+		return $this->render('astridAdBundle::deletephoto.html.twig', array(
+		  'advert' => $advert,
+		  'photo' => $photo,
+		  'form'   => $form->createView(),
+		));
+	}
 
 
 }

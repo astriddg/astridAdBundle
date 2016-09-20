@@ -12,7 +12,7 @@
 
 
 {% for advert in ads %} 
-	<p> <a href="{{ path('astrid_ad_view', {'id': advert.id}) }}" ><strong>{{ advert.title}} </strong></a> {{ advert.date|date('d/m/Y')}} <a href="{{ path('astrid_ad_edit', {'id': advert.id}) }} " class="btn btn-sm btn-warning" >Edit this ad</a> <a href="{{ path('astrid_ad_delete', {'id': city.id}) }}" class="btn btn-sm btn-danger">Delete</a></p> 
+	<p> <a href="{{ path('astrid_ad_view', {'id': advert.id}) }}" ><strong>{{ advert.title}} </strong></a> {{ advert.date|date('d/m/Y')}} <a href="{{ path('astrid_ad_edit', {'id': advert.id}) }} " class="btn btn-sm btn-warning" >Edit this ad</a> <a href="{{ path('astrid_ad_delete', {'id': advert.id}) }}" class="btn btn-sm btn-danger">Delete</a></p> 
 
 {% endfor %}
 

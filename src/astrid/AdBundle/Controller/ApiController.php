@@ -214,6 +214,11 @@ class ApiController extends Controller
 
 		$em = $this->getDoctrine()->getManager();
 
+		if(!$request->query->get('advert')) {
+			$error = array('status' => 400, 'message' => 'Oops, you forgot to enter an advert.');
+	        return new JsonResponse($error);
+		}
+
 		if (is_numeric($request->query->get('advert'))) {
 			$advert = $em->getRepository('astridAdBundle:Advert')->findOneById($request->query->get('advert'));
 		}
@@ -237,7 +242,8 @@ class ApiController extends Controller
 
 			$em->flush();
 		}
-		return new JsonResponse('reponse');
+		$response = array('status' => 200, 'message' => 'the request was successful. The photo has been added.');
+		return new JsonResponse($response);
 	}
 	
 	/**
@@ -248,6 +254,11 @@ class ApiController extends Controller
 
 		$body = json_decode($request->getContent(), true);
 		$cityName = $body['city'];
+
+		if (!$cityName) {
+			$error = array('status' => 400, 'error' => 'Oops, you forgot to enter a city...');
+	     	return new JsonResponse($error);	
+		}
 
 		$em = $this->getDoctrine()->getManager();
 
@@ -262,7 +273,7 @@ class ApiController extends Controller
 		}
 
 		$error = array('status' => 409, 'error' => 'Oops, looks like this city exists already..');
-	     return new JsonResponse($error);		
+	    return new JsonResponse($error);		
 
 
 	} 
@@ -277,6 +288,11 @@ class ApiController extends Controller
 		$categoryName = $body['category'];
 
 		$em = $this->getDoctrine()->getManager();
+
+		if (!$categoryName) {
+			$error = array('status' => 400, 'error' => 'Oops, you forgot to enter a category...');
+	     	return new JsonResponse($error);	
+		}
 
 		if (!$em->getRepository('astridAdBundle:Category')->findOneByName($categoryName)) {
 			$category = new Category();
@@ -317,61 +333,61 @@ class ApiController extends Controller
 		}
 
 
-			$body = $request->getContent();
-			$data= json_decode($body, true);
+		$body = $request->getContent();
+		$data= json_decode($body, true);
 
-			if (isset($data['title'])) {
-				$advert->setTitle($data['title']);
+		if (isset($data['title'])) {
+			$advert->setTitle($data['title']);
+		}
+
+		if (isset($data['description'])) {
+			$advert->setDescription($data['description']);
+		}
+
+		if (isset($data['price'])) {
+			$advert->setPrice($data['price']);
+		}
+
+		if (isset($data['category'])) {
+
+			if (is_numeric($data['category'] )) {
+				$category = $em->getRepository('astridAdBundle:Category')->findOneById($data['category']);
+			}
+			else {
+				$category  = $em->getRepository('astridAdBundle:Category')->findOneBySlug($data['category']);
 			}
 
-			if (isset($data['description'])) {
-				$advert->setDescription($data['description']);
+			if ($category == null) {
+		        $error = array('status' => 400, 'error' => 'Oops, this category does not exist. Please add it using "api/addcat".');
+     			return new JsonResponse($error);
 			}
 
-			if (isset($data['price'])) {
-				$advert->setPrice($data['price']);
+			$advert->setCategory($category);
+			
+		}
+
+		if (isset($data['city'])) {
+
+			if (is_numeric($data['city'] )) {
+				$advert = $em->getRepository('astridAdBundle:City')->findOneById($data['city']);
+			}
+			else {
+				$advert  = $em->getRepository('astridAdBundle:City')->findOneByName($data['city']);
 			}
 
-			if (isset($data['category'])) {
-
-				if (is_numeric($data['category'] )) {
-					$category = $em->getRepository('astridAdBundle:Category')->findOneById($data['category']);
-				}
-				else {
-					$category  = $em->getRepository('astridAdBundle:Category')->findOneBySlug($data['category']);
-				}
-
-				if ($category == null) {
-			        $error = array('status' => 400, 'error' => 'Oops, this category does not exist. Please add it using "api/addcat".');
-	     			return new JsonResponse($error);
-				}
-
-				$advert->setCategory($category);
-				
+			if ($city == null) {
+		        $error = array('status' => 400, 'error' => 'Oops, this city does not exist. Please add it using "api/addcity".');
+     			return new JsonResponse($error);
 			}
 
-			if (isset($data['city'])) {
+			$advert->setCity($city);
+			
+		}
 
-				if (is_numeric($data['city'] )) {
-					$advert = $em->getRepository('astridAdBundle:City')->findOneById($data['city']);
-				}
-				else {
-					$advert  = $em->getRepository('astridAdBundle:City')->findOneByName($data['city']);
-				}
+		$em->flush();
 
-				if ($city == null) {
-			        $error = array('status' => 400, 'error' => 'Oops, this city does not exist. Please add it using "api/addcity".');
-	     			return new JsonResponse($error);
-				}
-
-				$advert->setCity($city);
-				
-			}
-
-			$em->flush();
-
-			$response = array('status' => 200, 'message' => 'the request was successful. The advert was edited..');
-			return new JsonResponse($response);
+		$response = array('status' => 200, 'message' => 'the request was successful. The advert was edited..');
+		return new JsonResponse($response);
 
 	}
 

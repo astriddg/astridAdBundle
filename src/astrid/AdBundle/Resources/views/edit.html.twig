@@ -48,6 +48,7 @@
   {% endfor %}
 </div>
 
+  {% if form.photos is defined %}
    <div class="form-group">
     {{ form_label(form.photos, "Add photos", {'label_attr': {'class': 'col-sm-2 control-label'}}) }}
     {{ form_errors(form.photos) }}
@@ -55,6 +56,7 @@
       {{ form_widget(form.photos) }}
     </div>
   </div>
+{% endif %}
 
 
   <div class="form-group">
@@ -81,12 +83,12 @@
     </div>
   </div>
 
-  {% for file in form.photos %}
+  {% if form.photos is defined %}
+    {% for file in form.photos %}
 
-{{ form_errors(file) }} {{ form_widget(file) }}
-
-
-{% endfor %}
+      {{ form_errors(file) }} {{ form_widget(file) }}
+    {% endfor %}
+  {% endif %}
 
   {# Pour le bouton, pas de label ni d'erreur, on affiche juste le widget #}
   {{ form_widget(form.save, {'attr': {'class': 'btn btn-primary'}}) }}
